@@ -1,0 +1,116 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id          String     @id @default(cuid())
+  email       String     @unique
+  name        String?
+  image       String?
+  bio         String?
+  role        Role       @default(USER)
+  reviews     Review[]
+  bookmarks   Bookmark[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  blacklisted Boolean    @default(false)
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model Cafe {
+  id             String      @id @default(cuid())
+  name           String
+  slug           String      @unique
+  description    String?
+  address        String
+  phone          String?
+  operatingHours String?
+  closeOrder     String?
+  hasParking     Boolean     @default(false)
+  hasSmokingRoom Boolean     @default(false)
+  hasToilet      Boolean     @default(false)
+  hasPowerOutlets Boolean    @default(false)
+  hasMushola     Boolean     @default(false)
+  hasWifi        Boolean     @default(false)
+  category       String[]
+  tags           String[]
+  images         CafeImage[]
+  menuItems      MenuItem[]
+  reviews        Review[]
+  bookmarks      Bookmark[]
+  rating         Float       @default(0)
+  totalReviews   Int         @default(0)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  isVerified     Boolean     @default(false)
+  googlePlaceId  String?     @unique
+  googleMapsUrl  String?
+  latitude       Float?
+  longitude      Float?
+
+  @@index([isVerified, rating])
+}
+
+model CafeImage {
+  id        String   @id @default(cuid())
+  url       String
+  CafeId    String
+  cafe      Cafe     @relation(fields: [CafeId], references: [id], onDelete: Cascade)
+  isPrimary Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model MenuItem {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  category    String?
+  price       Int?
+  image       String?
+  isAvailable Boolean  @default(true)
+  CafeId      String
+  cafe        Cafe     @relation(fields: [CafeId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([CafeId])
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  rating    Int
+  comment   String?
+  images    String[]
+  CafeId    String
+  cafe      Cafe     @relation(fields: [CafeId], references: [id], onDelete: Cascade)
+  UserId    String
+  user      User     @relation(fields: [UserId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isAnomaly Boolean  @default(false)
+
+  @@index([CafeId, isAnomaly, createdAt])
+  @@index([UserId, createdAt])
+}
+
+model Bookmark {
+  id        String   @id @default(cuid())
+  CafeId    String
+  cafe      Cafe     @relation(fields: [CafeId], references: [id], onDelete: Cascade)
+  UserId    String
+  user      User     @relation(fields: [UserId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([CafeId, UserId])
+}

@@ -1,0 +1,5 @@
+import { Icon } from "@/app/components/Icon"
+
+export default function CafeDetailLoading() {
+  return <main className="page-loading container mx-auto min-h-[70vh] max-w-5xl px-4 py-8 sm:px-6 sm:py-12" aria-busy="true" aria-live="polite"><div className="grid gap-3 sm:grid-cols-3"><div className="loading-shimmer h-48 rounded-xl sm:h-56" /><div className="loading-shimmer hidden h-48 rounded-xl sm:block sm:h-56" /><div className="loading-shimmer hidden h-48 rounded-xl sm:block sm:h-56" /></div><section className="mt-8 rounded-xl border border-[var(--outline-variant)] bg-[var(--paper)] p-8 text-center"><span className="page-loading__icon inline-flex text-[var(--primary)]"><Icon name="coffee" size="lg" /></span><p className="mt-3 text-sm font-semibold text-[var(--on-surface-variant)]">Memuat detail cafe</p><span className="mt-2 flex justify-center gap-1" aria-hidden="true"><i className="page-loading__dot h-1.5 w-1.5 rounded-full bg-[var(--burnt-orange)]" /><i className="page-loading__dot h-1.5 w-1.5 rounded-full bg-[var(--burnt-orange)]" /><i className="page-loading__dot h-1.5 w-1.5 rounded-full bg-[var(--burnt-orange)]" /></span></section></main>
+}

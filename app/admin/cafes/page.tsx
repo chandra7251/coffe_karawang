@@ -1,0 +1,13 @@
+import Link from "next/link"
+import { requireAdminPage } from "@/lib/auth"
+import prisma from "@/lib/prisma"
+import AdminActionButton from "@/app/admin/components/AdminActionButton"
+import { Icon } from "@/app/components/Icon"
+
+type AdminCafe = { id: string; name: string; address: string; rating: number; isVerified: boolean; category: string[]; hasParking: boolean; images: { url: string }[]; _count: { reviews: number } }
+
+export default async function AdminCafesPage() {
+  await requireAdminPage()
+  const cafes = await prisma.cafe.findMany({ include: { images: { where: { isPrimary: true }, take: 1, select: { url: true } }, _count: { select: { reviews: true } } }, orderBy: { createdAt: "desc" } })
+  return <div className="admin-page"><div className="admin-page-heading admin-heading-with-action"><div><h2>Manage Cafes</h2><p>Comprehensive directory of all registered cafes in Karawang.</p></div><Link href="/admin/cafes/new" className="admin-primary-button"><Icon name="add" size="sm" /> Add New Cafe</Link></div><div className="admin-filter-panel"><label><Icon name="search" size="md" /><input placeholder="Search cafes by name or location..." /></label><button type="button">All Categories <Icon name="chevronDown" size="sm" /></button><button type="button">All Statuses <Icon name="chevronDown" size="sm" /></button><button type="button"><Icon name="tune" size="sm" /> More Filters</button></div><div className="admin-data-panel"><div className="admin-cafe-table-head"><span>Cafe Name</span><span>Location</span><span>Category</span><span>Parking</span><span>Status</span><span>Actions</span></div>{cafes.map((cafe: AdminCafe) => <div className="admin-cafe-table-row" key={cafe.id}><span className="admin-cafe-cell">{cafe.images[0]?.url ? <img src={cafe.images[0].url} alt={cafe.name} loading="lazy" decoding="async" /> : <span className="admin-thumb-placeholder"><Icon name="coffee" size="sm" /></span>}<b>{cafe.name}</b></span><span>{cafe.address.split(",")[0]}</span><span className="admin-category-chip">{cafe.category[0] || "Cafe"}</span><span className="admin-parking-icons"><Icon name="directionsCar" size="sm" filled /> <Icon name="directions" size="sm" /></span><span className={cafe.isVerified ? "status-approved" : "status-pending"}>{cafe.isVerified ? "Verified" : "Pending"}</span><span className="admin-row-actions"><Link href={`/admin/cafes/${cafe.id}`} className="admin-text-button">Edit</Link><AdminActionButton endpoint={`/api/cafes/${cafe.id}`} label="Delete" confirmMessage={`Hapus ${cafe.name}?`} /></span></div>)}</div><div className="admin-pagination"><span>Showing 1 to {Math.min(cafes.length, 10)} of {cafes.length} entries</span><span>‹ <b>1</b> 2 3 ›</span></div></div>
+}

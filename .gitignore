@@ -1,0 +1,23 @@
+# Local secrets
+.env
+.env.*
+!.env.example
+
+# Next.js
+.next
+out
+
+# Dependencies
+node_modules
+
+# Local test artifacts
+*.log
+playwright-report
+test-results
+
+# Root test screenshots and TypeScript cache
+/*.png
+*.tsbuildinfo
+
+# Local agent skills
+.agents
