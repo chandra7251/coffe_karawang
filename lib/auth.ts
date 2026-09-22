@@ -13,7 +13,7 @@ export class AuthError extends Error {
 }
 
 export async function getCurrentProfile() {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user?.email) return null
 
@@ -24,14 +24,12 @@ export async function getCurrentProfile() {
   const existing = await prisma.user.findUnique({ where: { email: user.email } })
   const role = existing?.role === "ADMIN" || configuredAdmins.includes(user.email.toLowerCase()) ? "ADMIN" : "USER"
 
-  const nextName = user.user_metadata?.name || existing?.name || null
-  const nextImage = user.user_metadata?.avatar_url || existing?.image || null
   const profile = existing
-    ? existing.name === nextName && existing.image === nextImage && existing.role === role
+    ? existing.role === role
       ? existing
       : await prisma.user.update({
           where: { id: existing.id },
-          data: { name: nextName, image: nextImage, role },
+          data: { role },
         })
     : await prisma.user.create({
         data: {
